@@ -1,0 +1,9 @@
+name: crystal-rollbar
+version: 0.1.0
+
+authors:
+  - Sergey Makridenkov <s@msa.im>
+
+crystal: 0.32.1
+
+license: MIT
