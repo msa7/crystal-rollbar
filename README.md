@@ -1,8 +1,8 @@
 # crystal-rollbar
 
-An unofficial Crystal-language client and integration layer for the rollbar.com error reporting API.
+An unofficial Crystal-language client and integration layer for the [Rollbar](https://rollbar.com) error reporting API.
 
-Based on Rollbar-gem
+Based on [Rollbar-gem](https://github.com/rollbar/rollbar-gem) and [raven.cr](https://github.com/Sija/raven.cr)
 
 Features:
 
@@ -42,6 +42,27 @@ rescue e
 end
 ```
 
+With Kemal
+
+```crystal
+require "crystal-rollbar/kemal"
+
+Kemal.config.add_handler(Rollbar::Kemal::ExceptionHandler.new)
+Kemal.run
+```
+
+With Sidekiq
+
+```crystal
+require "crystal-rollbar/sidekiq"
+cli = Sidekiq::CLI.new
+
+server = cli.configure do |config|
+  config.error_handlers << Rollbar::Sidekiq::ExceptionHandler.new
+end
+
+cli.run(server)
+```
 
 
 ## Contributing
