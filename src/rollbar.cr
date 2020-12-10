@@ -32,7 +32,11 @@ module Rollbar
     def self.{{name.id}}(message, user_id = nil)
       headers = HTTP::Headers{"X-Rollbar-Access-Token" => Rollbar.access_token!}
       payload = Item.new(message, user_id, "{{name.id}}").payload
-      HTTP::Client.post(API_URI, body: payload, headers: headers)
+      response = HTTP::Client.post(API_URI, body: payload, headers: headers)
+
+      # unless response.success?
+      #   raise "Bad response from Rollbar. #{response}. Playload #{payload}"
+      # end
     end
   {% end %}
 
@@ -137,16 +141,17 @@ module Rollbar
       json.field("frames") do
         json.array do
           backtrace.each do |frame|
-            filename_lineno_method = frame.split(" in '")
-            next if filename_lineno_method.size < 2
-
-            filename, lineno, col = filename_lineno_method[0].split(":")
-            method = filename_lineno_method[1].sub("'", "")
-
             json.object do
-              json.field("filename", filename)
-              json.field("lineno", lineno)
-              json.field("method", method)
+              json.field("filename", frame)
+
+              filename_lineno_method = frame.split(" in '")
+
+              if filename_lineno_method.size > 1
+                filename, lineno, col = filename_lineno_method[0].split(":")
+                method = filename_lineno_method[1].sub("'", "")
+                json.field("lineno", lineno)
+                json.field("method", method)
+              end
             end
           end
         end
