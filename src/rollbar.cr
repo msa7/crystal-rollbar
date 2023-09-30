@@ -140,12 +140,18 @@ module Rollbar
             filename_lineno_method = frame.split(" in '")
             next if filename_lineno_method.size < 2
 
-            filename, lineno, col = filename_lineno_method[0].split(":")
             method = filename_lineno_method[1].sub("'", "")
+            frame_split = filename_lineno_method[0].split(":")
+            filename, lineno, col = if frame_split.size < 3
+              [frame_split[0], nil, nil, method]
+            else
+              [frame_split[0], frame_split[1], frame_split[2], method]
+            end
 
             json.object do
               json.field("filename", filename)
-              json.field("lineno", lineno)
+              json.field("lineno", lineno.to_i) unless lineno.nil?
+              json.field("colno", col.to_i) unless col.nil?
               json.field("method", method)
             end
           end
